@@ -1,0 +1,10 @@
+{
+  "id": "net.psimarron.webos.one",
+  "version": "1.0.0",
+  "vendor": "Dr. Jochen Manns",
+  "type": "web",
+  "main": "index.html",
+  "title": "VCR.NET Programmzeitschrift",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png"
+}
