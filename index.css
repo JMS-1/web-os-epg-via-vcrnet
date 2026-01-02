@@ -3,17 +3,142 @@ html {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #202020;
+  background: #202020;
   margin: 0;
+  line-height: 1.4;
+  font-size: 40px;
 }
 
 .main {
   width: calc(100% - 2em);
-  height: calc(100% - 2em);
-  overflow: auto;
-  padding: 1em;
+  height: calc(100% - 2.5em);
+  overflow: hidden;
+  padding: 1.5em 1em 1em 1em;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  row-gap: 0.5em;
 }
 
-pre {
-  color: white;
+.error {
+  color: #ff0000;
+  line-height: 2;
+  font-weight: bold;
+}
+
+.table {
+  color: #ffffff;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  position: relative;
+}
+
+.header {
+  padding: 0 0.2em;
+  display: grid;
+  grid-template-columns: 8em 1fr;
+  column-gap: 0.5em;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #888888;
+}
+
+.times {
+  display: grid;
+  grid-auto-flow: column;
+}
+
+.body {
+  padding: 0 0.2em;
+  background: #000000;
+}
+
+.station {
+  overflow: hidden;
+  text-overflow: hidden;
+  white-space: nowrap;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 8em 1fr;
+  column-gap: 0.5em;
+  border-bottom: 1px solid #ffffff;
+}
+
+.entries {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.entry {
+  font-size: 0.7rem;
+  position: absolute;
+  top: 0.3rem;
+  cursor: pointer;
+  overflow: hidden;
+
+  > div {
+    margin-right: 0.2rem;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: hidden;
+  }
+}
+
+.details {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 10;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+}
+
+button {
+  font-size: 1.5em;
+  border-radius: 10px;
+  font-weight: bold;
+}
+
+.dialog {
+  min-width: 30em;
+  max-width: 50vw;
+  max-height: 80vh;
+  overflow: hidden;
+  background: white;
+  font-size: 1em;
+  padding: 1em;
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+.dialogTitle {
+  font-size: 1.5em;
+  text-align: center;
+  margin-bottom: 0.5em;
+  font-weight: bold;
+}
+
+.dialogStation {
+  font-size: 1.1em;
+}
+
+.dialogShort {
+  margin: 0.5em 0;
+}
+
+.dialogLong {
+  overflow: auto;
+}
+
+.table::-webkit-scrollbar,
+.dialogLong::-webkit-scrollbar {
+  display: none;
 }

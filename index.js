@@ -7,6 +7,8 @@ let started = new Date();
 let fullGuide = {};
 let offset = 0;
 
+let table;
+
 async function fetch(endpoint, data) {
   return new Promise((s) => {
     try {
@@ -38,10 +40,12 @@ async function fetch(endpoint, data) {
 }
 
 function failure(msg) {
-  document.querySelector("pre").innerText = msg;
+  document.querySelector(".error").innerText = msg;
 }
 
 async function refresh() {
+  failure("");
+
   const profiles = await fetch("profile/profiles");
   const profile = profiles && profiles[0];
 
@@ -77,7 +81,23 @@ async function refresh() {
   for (const entry of guide) {
     const source = map[entry.station];
 
-    if (source) source.push(entry);
+    if (!source) continue;
+
+    const from = new Date(entry.startTimeISO);
+
+    const to = new Date(
+      from.getFullYear(),
+      from.getMonth(),
+      from.getDate(),
+      from.getHours(),
+      from.getMinutes(),
+      from.getSeconds() + entry.durationInSeconds
+    );
+
+    entry.from = from.getTime();
+    entry.to = to.getTime();
+
+    source.push(entry);
   }
 
   fullGuide = Object.keys(map).reduce((m, n) => {
@@ -88,9 +108,11 @@ async function refresh() {
 
     return m;
   }, {});
+
+  return true;
 }
 
-function showAt(start) {
+function createViewContents(start) {
   const end = new Date(
     start.getFullYear(),
     start.getMonth(),
@@ -99,47 +121,116 @@ function showAt(start) {
     start.getMinutes() + columnCount * columnMinutes
   );
 
+  const view = {};
+
   for (const station of Object.keys(fullGuide)) {
-    const entries = fullGuide[station]
-      .map((e) => {
-        const from = new Date(e.startTimeISO);
+    const entries = [];
 
-        if (from.getTime() >= end.getTime()) return null;
+    for (const entry of fullGuide[station])
+      if (entry.from < end.getTime()) {
+        if (entry.from >= end.getTime()) break;
 
-        const to = new Date(
-          from.getFullYear(),
-          from.getMonth(),
-          from.getDate(),
-          from.getHours(),
-          from.getMinutes(),
-          from.getSeconds() + e.durationInSeconds
-        );
+        if (entry.to < start.getTime()) continue;
 
-        if (to.getTime() < start.getTime()) return null;
+        let left = (entry.from - start.getTime()) / columnFactor;
 
-        return {
-          end: to,
-          entry: e,
-          left: (from.getTime() - start.getTime()) / columnFactor,
-          name: e.name,
-          start: from,
-          width: (to.getTime() - from.getTime()) / columnFactor,
-        };
-      })
-      .filter((e) => e && e.width > 0 && e.left + e.width > 0);
+        let width = (entry.to - entry.from) / columnFactor;
 
-    document.querySelector("pre").innerText += station + "\n";
+        if (left < 0) {
+          width += left;
+          left = 0;
+        }
 
-    for (const entry of entries) {
-      document.querySelector("pre").innerText += "\t" + entry.name + "\n";
-    }
+        if (width <= 0) continue;
+
+        entries.push({
+          end: entry.to,
+          entry,
+          left,
+          name: entry.name,
+          start: entry.from,
+          width,
+        });
+      }
+
+    view[station] = entries;
   }
+
+  return view;
+}
+
+function formatDate(date, short) {
+  const full = new Date(date);
+  const year = `${full.getFullYear()}`;
+  const month = `${1 + full.getMonth()}`.padStart(2, "0");
+  const day = `${full.getDate()}`.padStart(2, "0");
+  const hour = `${full.getHours()}`.padStart(2, "0");
+  const minute = `${full.getMinutes()}`.padStart(2, "0");
+
+  return short
+    ? `${hour}:${minute}`
+    : `${day}.${month}.${year} ${hour}:${minute}`;
+}
+
+function viewDetails(info, source) {
+  const entry = info.entry;
+
+  const details = document.createElement("div");
+
+  details.classList.add("details");
+  details.onclick = () => details.remove();
+
+  const data = details.appendChild(document.createElement("div"));
+
+  data.classList.add("dialog");
+
+  const statics = data.appendChild(document.createElement("div"));
+
+  const title = statics.appendChild(document.createElement("div"));
+
+  title.classList.add("dialogTitle");
+
+  title.innerText = entry.name;
+
+  const station = statics.appendChild(document.createElement("div"));
+
+  station.classList.add("dialogStation");
+
+  station.innerText = "auf " + source;
+
+  const from = statics.appendChild(document.createElement("div"));
+
+  from.classList.add("dialogFromTo");
+
+  from.innerText =
+    "von " +
+    formatDate(entry.from, false) +
+    " bis " +
+    formatDate(entry.to, true);
+
+  if (entry.summary) {
+    const short = statics.appendChild(document.createElement("div"));
+
+    short.classList.add("dialogShort");
+
+    short.innerText = entry.summary;
+  }
+
+  if (entry.description) {
+    const long = data.appendChild(document.createElement("div"));
+
+    long.classList.add("dialogLong");
+
+    long.innerText = entry.description;
+  }
+
+  document.body.appendChild(details);
 }
 
 function createView() {
-  document.querySelector("pre").innerText = "";
+  failure("");
 
-  const start = new Date(
+  let start = new Date(
     started.getFullYear(),
     started.getMonth(),
     started.getDate(),
@@ -147,23 +238,87 @@ function createView() {
     (Math.floor(started.getMinutes() / 15) + offset) * 15
   );
 
-  showAt(start);
+  table.innerText = "";
+
+  const header = document.createElement("div");
+
+  header.classList.add("header");
+  header.appendChild(document.createElement("div")).innerText = "Sender";
+
+  const times = header.appendChild(document.createElement("div"));
+
+  times.classList.add("times");
+
+  for (let i = 0; i < columnCount; i++) {
+    const hours = `${start.getHours()}`.padStart(2, "0");
+    const minutes = `${start.getMinutes()}`.padStart(2, "0");
+
+    times.appendChild(
+      document.createElement("div")
+    ).innerText = `${hours}:${minutes}`;
+
+    start = new Date(
+      start.getFullYear(),
+      start.getMonth(),
+      start.getDate(),
+      start.getHours(),
+      start.getMinutes() + 15
+    );
+  }
+
+  table.appendChild(header);
+
+  const body = document.createElement("div");
+
+  body.classList.add("body");
+
+  const view = createViewContents(start);
+
+  for (const station of Object.keys(view)) {
+    const row = body.appendChild(document.createElement("div"));
+
+    row.classList.add("row");
+
+    const name = row.appendChild(document.createElement("div"));
+
+    name.classList.add("station");
+    name.innerText = station;
+
+    const entries = row.appendChild(document.createElement("div"));
+
+    entries.classList.add("entries");
+
+    for (const entry of view[station]) {
+      const info = entries.appendChild(document.createElement("div"));
+
+      info.onclick = () => viewDetails(entry, station);
+
+      info.classList.add("entry");
+
+      info.style.left = `${entry.left}%`;
+      info.style.width = `${entry.width}%`;
+
+      info.appendChild(document.createElement("div")).innerText = entry.name;
+    }
+  }
+
+  table.appendChild(body);
 }
 
 async function startup() {
-  await refresh();
+  table = document.querySelector(".table");
 
-  createView();
+  if (await refresh()) createView();
 }
 
 function next() {
-  offset = offset + 1;
+  offset = offset + columnCount - 2;
 
   createView();
 }
 
 function prev() {
-  offset = Math.max(0, offset - 1);
+  offset = Math.max(0, offset - columnCount + 2);
 
   createView();
 }
