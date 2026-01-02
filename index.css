@@ -79,13 +79,14 @@ html {
   top: 0.3rem;
   cursor: pointer;
   overflow: hidden;
+  border-right: 1px dotted white;
+}
 
-  > div {
-    margin-right: 0.2rem;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: hidden;
-  }
+.entry > div {
+  margin: 0 0.2rem;
+  overflow: hidden;
+  white-space: nowrap;
+  word-break: break-all;
 }
 
 .details {
@@ -141,4 +142,32 @@ button {
 .table::-webkit-scrollbar,
 .dialogLong::-webkit-scrollbar {
   display: none;
+}
+
+.spinner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  background: #000000;
+  z-index: 1000;
+}
+
+.spinner > div {
+  width: 200px;
+  height: 200px;
+  border: 20px solid red;
+  border-radius: 50%;
+  animation: spin 4s linear infinite;
+  border-top-color: #000000;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

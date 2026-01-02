@@ -46,6 +46,8 @@ function failure(msg) {
 async function refresh() {
   failure("");
 
+  table.innerText = "";
+
   const profiles = await fetch("profile/profiles");
   const profile = profiles && profiles[0];
 
@@ -311,6 +313,8 @@ async function startup() {
   table = document.querySelector(".table");
 
   if (await refresh()) createView();
+
+  document.querySelector(".spinner").remove();
 }
 
 function next() {
@@ -329,4 +333,10 @@ function start() {
   offset = 0;
 
   createView();
+}
+
+async function reload() {
+  offset = 0;
+
+  if (await refresh()) createView();
 }
