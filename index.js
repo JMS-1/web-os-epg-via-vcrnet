@@ -1,3 +1,12 @@
+const columnCount = 8;
+const columnMinutes = 15;
+
+const columnFactor = columnMinutes * 600 * columnCount;
+
+let started = new Date();
+let fullGuide = {};
+let offset = 0;
+
 async function fetch(endpoint, data) {
   return new Promise((s) => {
     try {
@@ -50,7 +59,7 @@ async function refresh() {
   const query = {
     contentPattern: "",
     pageIndex: 0,
-    pageSize: 100,
+    pageSize: 100000,
     profileName: profile.name,
     source: "",
     sourceEncryption: "All",
@@ -71,7 +80,7 @@ async function refresh() {
     if (source) source.push(entry);
   }
 
-  map = Object.keys(map).reduce((m, n) => {
+  fullGuide = Object.keys(map).reduce((m, n) => {
     const split = n.indexOf("[");
     const name = (n < 0 ? n : n.substring(0, split)).trim();
 
@@ -79,17 +88,88 @@ async function refresh() {
 
     return m;
   }, {});
+}
 
-  const start = new Date(
-    Object.keys(map)
-      .flatMap((n) => map[n])
-      .map((e) => e.startTimeISO)
-      .sort((l, r) => l.localeCompare(r))[0]
+function showAt(start) {
+  const end = new Date(
+    start.getFullYear(),
+    start.getMonth(),
+    start.getDate(),
+    start.getHours(),
+    start.getMinutes() + columnCount * columnMinutes
   );
 
-  document.querySelector("pre").innerText = start;
+  for (const station of Object.keys(fullGuide)) {
+    const entries = fullGuide[station]
+      .map((e) => {
+        const from = new Date(e.startTimeISO);
+
+        if (from.getTime() >= end.getTime()) return null;
+
+        const to = new Date(
+          from.getFullYear(),
+          from.getMonth(),
+          from.getDate(),
+          from.getHours(),
+          from.getMinutes(),
+          from.getSeconds() + e.durationInSeconds
+        );
+
+        if (to.getTime() < start.getTime()) return null;
+
+        return {
+          end: to,
+          entry: e,
+          left: (from.getTime() - start.getTime()) / columnFactor,
+          name: e.name,
+          start: from,
+          width: (to.getTime() - from.getTime()) / columnFactor,
+        };
+      })
+      .filter((e) => e && e.width > 0 && e.left + e.width > 0);
+
+    document.querySelector("pre").innerText += station + "\n";
+
+    for (const entry of entries) {
+      document.querySelector("pre").innerText += "\t" + entry.name + "\n";
+    }
+  }
+}
+
+function createView() {
+  document.querySelector("pre").innerText = "";
+
+  const start = new Date(
+    started.getFullYear(),
+    started.getMonth(),
+    started.getDate(),
+    started.getHours(),
+    (Math.floor(started.getMinutes() / 15) + offset) * 15
+  );
+
+  showAt(start);
 }
 
 async function startup() {
-  refresh();
+  await refresh();
+
+  createView();
+}
+
+function next() {
+  offset = offset + 1;
+
+  createView();
+}
+
+function prev() {
+  offset = Math.max(0, offset - 1);
+
+  createView();
+}
+
+function start() {
+  offset = 0;
+
+  createView();
 }
