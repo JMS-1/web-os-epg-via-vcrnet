@@ -249,20 +249,22 @@ function createView() {
 
   times.classList.add("times");
 
+  let column = start;
+
   for (let i = 0; i < columnCount; i++) {
-    const hours = `${start.getHours()}`.padStart(2, "0");
-    const minutes = `${start.getMinutes()}`.padStart(2, "0");
+    const hours = `${column.getHours()}`.padStart(2, "0");
+    const minutes = `${column.getMinutes()}`.padStart(2, "0");
 
     times.appendChild(
       document.createElement("div")
     ).innerText = `${hours}:${minutes}`;
 
-    start = new Date(
-      start.getFullYear(),
-      start.getMonth(),
-      start.getDate(),
-      start.getHours(),
-      start.getMinutes() + 15
+    column = new Date(
+      column.getFullYear(),
+      column.getMonth(),
+      column.getDate(),
+      column.getHours(),
+      column.getMinutes() + 15
     );
   }
 
