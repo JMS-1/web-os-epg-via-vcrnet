@@ -1,3 +1,10 @@
+/**
+ * Do some date time formatting.
+ *
+ * @param {number} date Time in Date.getTime() representation.
+ * @param {boolean} short Set to only show the time.
+ * @returns
+ */
 function formatDate(date, short) {
   const full = new Date(date);
   const year = `${full.getFullYear()}`;
@@ -11,9 +18,16 @@ function formatDate(date, short) {
     : `${day}.${month}.${year} ${hour}:${minute}`;
 }
 
+/**
+ * Show details of an entry.
+ *
+ * @param {object} info Information on the entry to show.
+ * @param {string} source Name of the station.
+ */
 function viewDetails(info, source) {
   const entry = info.entry;
 
+  /** Create the dialog - will close via remove on any click. */
   const details = document.createElement("div");
 
   details.classList.add("details");
@@ -25,6 +39,7 @@ function viewDetails(info, source) {
 
   const statics = data.appendChild(document.createElement("div"));
 
+  /** Name and station. */
   const title = statics.appendChild(document.createElement("div"));
 
   title.classList.add("dialogTitle");
@@ -37,6 +52,7 @@ function viewDetails(info, source) {
 
   station.innerText = "auf " + source;
 
+  /** Start and end time. */
   const from = statics.appendChild(document.createElement("div"));
 
   from.classList.add("dialogFromTo");
@@ -47,6 +63,7 @@ function viewDetails(info, source) {
     " bis " +
     formatDate(entry.to, true);
 
+  /** Short description. */
   if (entry.summary) {
     const short = statics.appendChild(document.createElement("div"));
 
@@ -55,6 +72,7 @@ function viewDetails(info, source) {
     short.innerText = entry.summary;
   }
 
+  /** Long description. */
   if (entry.description) {
     const long = data.appendChild(document.createElement("div"));
 

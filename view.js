@@ -1,14 +1,25 @@
+/** Number of columns including with in minutes. */
 const columnCount = 8;
 const columnMinutes = 15;
 
+/** Factor to convert some time range in milliseconds to percentage of total with. */
 const columnFactor = columnMinutes * 600 * columnCount;
 
+/** Current time of first column. */
 let started = new Date();
 let offset = 0;
 
+/** DOM element to put guide data in. */
 let table;
 
+/**
+ * Create view contents for a given start time.
+ *
+ * @param {Date} start
+ * @returns Table contents as raw data.
+ */
 function createViewContents(start) {
+  /** Start of next view on the data. */
   const end = new Date(
     start.getFullYear(),
     start.getMonth(),
@@ -19,48 +30,56 @@ function createViewContents(start) {
 
   const view = {};
 
+  /** Process all station names already sorted. */
   for (const station of Object.keys(fullGuide)) {
     const entries = [];
 
-    for (const entry of fullGuide[station])
-      if (entry.from < end.getTime()) {
-        if (entry.from >= end.getTime()) break;
+    /** Process all entries of the station. */
+    for (const entry of fullGuide[station]) {
+      /** Right of view - can end since entries are sorted. */
+      if (entry.from >= end.getTime()) break;
 
-        if (entry.to < start.getTime()) continue;
+      /** Left of view check next entry in order. */
+      if (entry.to < start.getTime()) continue;
 
-        let left = (entry.from - start.getTime()) / columnFactor;
+      /** Position and size in percentage. */
+      let left = (entry.from - start.getTime()) / columnFactor;
+      let width = (entry.to - entry.from) / columnFactor;
 
-        let width = (entry.to - entry.from) / columnFactor;
+      /** First entry may be started in the past - show now separator line and clip accordingly. */
+      const leftBorder = left >= 0;
 
-        const leftBorder = left >= 0;
-
-        if (!leftBorder) {
-          width += left;
-          left = 0;
-        }
-
-        if (width <= 0) continue;
-
-        entries.push({
-          end: entry.to,
-          entry,
-          left,
-          leftBorder,
-          name: entry.name,
-          start: entry.from,
-          width,
-        });
+      if (!leftBorder) {
+        width += left;
+        left = 0;
       }
 
+      /** Just to be a bit safe. */
+      if (width <= 0) continue;
+
+      entries.push({
+        end: entry.to,
+        entry,
+        left,
+        leftBorder,
+        name: entry.name,
+        start: entry.from,
+        width,
+      });
+    }
+
+    /** Add to map. */
     view[station] = entries;
   }
 
   return view;
 }
 
+/** Create the program guide in DOM. */
 function createView() {
   failure("");
 
+  /** Get start time of first column. */
   let start = new Date(
     started.getFullYear(),
     started.getMonth(),
@@ -73,8 +92,10 @@ function createView() {
   const month = `${1 + start.getMonth()}`.padStart(2, "0");
   const day = `${start.getDate()}`.padStart(2, "0");
 
+  /** Reset the table content. */
   table.innerText = "";
 
+  /** Create header with date and all column times. */
   const header = document.createElement("div");
 
   header.classList.add("header");
@@ -107,12 +128,14 @@ function createView() {
 
   table.appendChild(header);
 
+  /** Create table content with all rows. */
   const body = document.createElement("div");
 
   body.classList.add("body");
 
   const view = createViewContents(start);
 
+  /** One table row per station. */
   for (const station of Object.keys(view)) {
     const row = body.appendChild(document.createElement("div"));
 
@@ -127,6 +150,7 @@ function createView() {
 
     entries.classList.add("entries");
 
+    /** Just add all entries in the current view. */
     for (const entry of view[station]) {
       const info = entries.appendChild(document.createElement("div"));
 
@@ -134,8 +158,10 @@ function createView() {
 
       info.classList.add("entry");
 
+      /** Do not show border if entry is incomplete - can only be the first entry. */
       if (entry.leftBorder) info.classList.add("border");
 
+      /** Position entry according to start and end time and column time. */
       info.style.left = `${entry.left}%`;
       info.style.width = `${entry.width}%`;
 
@@ -143,5 +169,6 @@ function createView() {
     }
   }
 
+  /** Add table to visible DOM. */
   table.appendChild(body);
 }
