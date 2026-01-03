@@ -165,8 +165,8 @@ button {
   height: 200px;
   border: 20px solid red;
   border-radius: 50%;
-  animation: spin 4s linear infinite;
-  border-top-color: #000000;
+  animation: spin 2s linear infinite;
+  border-top-color: transparent;
 }
 
 @keyframes spin {

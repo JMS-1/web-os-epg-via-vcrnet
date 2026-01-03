@@ -8,6 +8,56 @@ let offset = 0;
 
 let table;
 
+function createViewContents(start) {
+  const end = new Date(
+    start.getFullYear(),
+    start.getMonth(),
+    start.getDate(),
+    start.getHours(),
+    start.getMinutes() + columnCount * columnMinutes
+  );
+
+  const view = {};
+
+  for (const station of Object.keys(fullGuide)) {
+    const entries = [];
+
+    for (const entry of fullGuide[station])
+      if (entry.from < end.getTime()) {
+        if (entry.from >= end.getTime()) break;
+
+        if (entry.to < start.getTime()) continue;
+
+        let left = (entry.from - start.getTime()) / columnFactor;
+
+        let width = (entry.to - entry.from) / columnFactor;
+
+        const leftBorder = left >= 0;
+
+        if (!leftBorder) {
+          width += left;
+          left = 0;
+        }
+
+        if (width <= 0) continue;
+
+        entries.push({
+          end: entry.to,
+          entry,
+          left,
+          leftBorder,
+          name: entry.name,
+          start: entry.from,
+          width,
+        });
+      }
+
+    view[station] = entries;
+  }
+
+  return view;
+}
+
 function createView() {
   failure("");
 

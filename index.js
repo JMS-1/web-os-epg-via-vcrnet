@@ -1,13 +1,24 @@
+let spinner;
+
 function failure(msg) {
   document.querySelector(".error").innerText = msg;
 }
 
-async function startup() {
-  table = document.querySelector(".table");
+async function reload() {
+  spinner.style.display = "";
+
+  offset = 0;
 
   if (await refresh()) createView();
 
-  document.querySelector(".spinner").remove();
+  spinner.style.display = "none";
+}
+
+async function startup() {
+  table = document.querySelector(".table");
+  spinner = document.querySelector(".spinner");
+
+  reload();
 }
 
 function next() {
@@ -26,10 +37,4 @@ function start() {
   offset = 0;
 
   createView();
-}
-
-async function reload() {
-  offset = 0;
-
-  if (await refresh()) createView();
 }
