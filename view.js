@@ -19,12 +19,18 @@ function createView() {
     (Math.floor(started.getMinutes() / 15) + offset) * 15
   );
 
+  const year = `${start.getFullYear()}`;
+  const month = `${1 + start.getMonth()}`.padStart(2, "0");
+  const day = `${start.getDate()}`.padStart(2, "0");
+
   table.innerText = "";
 
   const header = document.createElement("div");
 
   header.classList.add("header");
-  header.appendChild(document.createElement("div")).innerText = "Sender";
+  header.appendChild(
+    document.createElement("div")
+  ).innerText = `${day}.${month}.${year}`;
 
   const times = header.appendChild(document.createElement("div"));
 
