@@ -78,6 +78,8 @@ function createView() {
 
       info.classList.add("entry");
 
+      if (entry.leftBorder) info.classList.add("border");
+
       info.style.left = `${entry.left}%`;
       info.style.width = `${entry.width}%`;
 

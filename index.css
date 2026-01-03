@@ -79,7 +79,10 @@ html {
   top: 0.3rem;
   cursor: pointer;
   overflow: hidden;
-  border-right: 1px dotted white;
+}
+
+.entry.border {
+  border-left: 1px dotted white;
 }
 
 .entry > div {

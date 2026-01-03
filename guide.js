@@ -95,7 +95,9 @@ function createViewContents(start) {
 
         let width = (entry.to - entry.from) / columnFactor;
 
-        if (left < 0) {
+        const leftBorder = left >= 0;
+
+        if (!leftBorder) {
           width += left;
           left = 0;
         }
@@ -106,6 +108,7 @@ function createViewContents(start) {
           end: entry.to,
           entry,
           left,
+          leftBorder,
           name: entry.name,
           start: entry.from,
           width,
