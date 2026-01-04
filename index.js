@@ -51,6 +51,7 @@ function prev() {
 
 /** Go to start of data. */
 function start() {
+  started = new Date();
   offset = 0;
 
   createView();
