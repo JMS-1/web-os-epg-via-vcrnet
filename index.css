@@ -180,7 +180,9 @@ html {
   border: 20px solid red;
   border-radius: 50%;
   animation: spin 2s linear infinite;
-  border-top-color: transparent;
+  border-top-color: #444444;
+  border-right-color: #444444;
+  border-bottom-color: #444444;
 }
 
 @keyframes spin {
