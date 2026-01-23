@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>new app</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+
+  <script src="webOSTVjs-1.2.10/webOSTV.js" charset="utf-8"></script>
+  <script src="webOSTVjs-1.2.10/webOSTV-dev.js" charset="utf-8"></script>
+
+  <script type="text/javascript" src="api.js"></script>
+  <script type="text/javascript" src="guide.js"></script>
+  <script type="text/javascript" src="details.js"></script>
+  <script type="text/javascript" src="view.js"></script>
+  <script type="text/javascript" src="index.js"></script>
+
+  <body onload="startup()">
+    <div class="main">
+      <div class="actions">
+        <button onclick="start()">&lt;&lt;</button>
+        <button onclick="prev()">&lt;</button>
+        <button onclick="next()">&gt;</button>
+        <button onclick="nextDay()">&gt;&gt;</button>
+        <span>Programmzeitschrift</span>
+        <button onclick="reload()">Neu laden</button>
+      </div>
+      <div class="error"></div>
+      <div class="table"></div>
+    </div>
+    <div class="spinner"><div></div></div>
+  </body>
+</html>
