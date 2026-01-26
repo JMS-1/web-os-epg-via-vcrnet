@@ -1,6 +1,7 @@
 /** Number of columns including with in minutes. */
 const columnCount = 8;
 const columnMinutes = 15;
+const dayNames = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
 
 /** Factor to convert some time range in milliseconds to percentage of total with. */
 const columnFactor = columnMinutes * 600 * columnCount;
@@ -101,7 +102,7 @@ function createView() {
 
   header.classList.add("header");
   header.appendChild(document.createElement("div")).innerText =
-    `${day}.${month}.${year}`;
+    `${dayNames[start.getDay()]} ${day}.${month}.${year}`;
 
   const times = header.appendChild(document.createElement("div"));
 
