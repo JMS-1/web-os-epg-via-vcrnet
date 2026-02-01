@@ -184,12 +184,12 @@ html {
 .spinner > div {
   width: 200px;
   height: 200px;
-  border: 20px solid red;
+  border: 20px solid #008000;
   border-radius: 50%;
   animation: spin 2s linear infinite;
-  border-top-color: #444444;
-  border-right-color: #444444;
-  border-bottom-color: #444444;
+  border-top-color: #080808;
+  border-right-color: #080808;
+  border-bottom-color: #080808;
 }
 
 @keyframes spin {
